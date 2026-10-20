@@ -171,3 +171,22 @@ img{max-width:100%;display:block}
 .player-info{max-width:78ch;margin:1rem auto 0;font-size:.92rem}
 .player-info p{margin-bottom:.4rem}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* Ad slots (hidden unless configured in games.js) */
+.ad-slot{margin-block:1.5rem;text-align:center}
+.ad-label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:.3rem}
+.ad-box{margin-inline:auto;max-width:100%;overflow:hidden;display:flex;justify-content:center}
+.ad-placeholder{align-items:center;border:1px dashed var(--border);border-radius:10px;background:var(--panel);color:var(--muted);font-size:.85rem}
+
+/* "Open in new tab" full-tab mode: slim bar on top, game fills the rest of the tab */
+.tab-only{display:none}
+body.tab-mode{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+.tab-mode .site-header,.tab-mode .player-info,.tab-mode .ad-slot,.tab-mode #newtab-btn,.tab-mode #game-sub,.tab-mode .skip-link{display:none!important}
+.tab-mode .tab-only{display:inline-flex}
+.tab-mode .player-main{width:100%;max-width:none;margin:0;padding:0;flex:1;display:flex;flex-direction:column;min-height:0}
+.tab-mode .player-top{flex:none;margin:0;padding:.4rem .75rem;background:var(--panel);border-bottom:1px solid var(--border);align-items:center}
+.tab-mode .player-top h1{font-size:1rem}
+.tab-mode .stage-wrap{flex:1;width:100%;min-width:0;min-height:0;aspect-ratio:auto;border:0;border-radius:0}
+.tab-mode .stage-wrap:fullscreen{border:0}
+.tab-mode .status{position:fixed;left:.75rem;bottom:.75rem;z-index:5;margin:0;padding:.35rem .75rem;background:var(--panel);border:1px solid var(--border);border-radius:8px}
+.tab-mode .status:empty{display:none}

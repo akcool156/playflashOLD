@@ -13,11 +13,15 @@ No backend, accounts, API keys, build step or analytics are involved.
 | `index.html` | Home page: hero, upload area, catalogue, footer |
 | `player.html` | Dedicated player page (`?upload=ID` or `?game=ID`) |
 | `styles.css` | All styling (shared by both pages) |
-| `games.js` | **Configuration and catalogue data.** Edit this to add games or change limits |
+| `games.js` | **Configuration and catalogue data.** Edit this to add games, images or change limits |
+| `ads.js` | Fills the optional ad containers (off by default) |
+| `ADDING_GAMES.md` | **Step-by-step guide to adding games and images** |
+| `games/` | Put catalogue `.swf` files here |
+| `assets/thumbs/` | Put card images here |
 | `storage.js` | IndexedDB helpers and file validation, shared by both pages |
 | `app.js` | Home page logic: nav, upload, saved files, search and filters |
 | `player.js` | Loads Ruffle, plays the SWF, restart, fullscreen, new tab, error handling |
-| `assets/` | Optional local artwork (thumbnails) |
+| `assets/` | Other local artwork |
 
 All internal links and script/style paths are relative, so the site works at the domain root or under a
 repository path such as `https://USER.github.io/PlayFlash/`.
@@ -74,32 +78,24 @@ Notes and limits:
   Ruffle is an emulator, not a security guarantee. Only open files you trust.
 - Ruffle runs with `allowScriptAccess: false`. Don't enable it unless you have a specific, understood need.
 
-## Adding real games
+## Adding real games and images
 
-Edit `PLAYFLASH_GAMES` in `games.js`. A game is playable only when `status` is `"available"` **and** `swfUrl` is
-non-empty. Otherwise its card is shown as "Coming soon" and cannot be launched.
+Short version: put the `.swf` in `games/`, the image in `assets/thumbs/`, then edit the entry in `games.js`:
 
 ```js
-{
-  id: "my-game",
-  title: "My Game",
-  category: "Platformer",              // one of PLAYFLASH_CATEGORIES
-  description: "One short sentence.",
-  thumbnail: "assets/my-game.webp",    // optional, original or licensed artwork only
-  swfUrl: "games/my-game.swf",         // same-origin path, or a URL that sends CORS headers
-  status: "available"
-}
+{ id: "space-blaster", title: "Space Blaster", category: "Arcade",
+  description: "Shoot waves of asteroids and upgrade your ship.",
+  thumbnail: "space-blaster.webp",   // file in assets/thumbs/ (or "" for a placeholder)
+  swfUrl: "space-blaster.swf",       // file in games/: the address of the game file
+  status: "available" }
 ```
 
-Technical limits:
+**See `ADDING_GAMES.md` for full instructions**, including what `swfUrl` means and how to do it all in GitHub's web interface.
 
-- **Cross-origin files:** the player downloads the SWF with `fetch`, so a remote host must allow CORS.
-  Hosting the file in this repository avoids the problem.
-- **Supporting assets:** games that load other files (extra SWFs, XML, images, audio) at runtime need those files hosted at
-  the paths the game expects, and may be blocked by CORS or Ruffle limitations.
-- **Compatibility:** Ruffle supports ActionScript 1 and 2 well and ActionScript 3 partially. Always test each game
-  and record the result.
-- SWFs are downloaded only when a visitor opens that game's player page, never on the home page.
+A game is playable only when `status` is `"available"` **and** `swfUrl` is non-empty. SWFs are downloaded only when a
+visitor opens that game's player page, never on the home page. Compatibility varies: Ruffle supports ActionScript 1 and 2
+well and ActionScript 3 partially, so test every game. Games that load extra files, or remote files from another site
+(which needs CORS), are the most likely to fail.
 
 ### Rights record (keep one row per game)
 
@@ -119,9 +115,31 @@ Their names belong to their respective owners.
 In `games.js`: `maxUploadMB`, `maxStoredUploads`, and `ruffleSources`. For stable production use, pin Ruffle to a specific
 nightly version in `ruffleSources` instead of the unversioned URL, so a new release can't change behaviour unexpectedly.
 
+## Open in new tab
+
+The player's **Open in new tab** button opens `player.html?upload=ID&tab=1` (or `?game=ID&tab=1`): a full-tab view with a slim
+top bar (title, Restart, Fullscreen, home link) and the game filling everything else. It works because the file is in
+IndexedDB, which all tabs on the site share.
+
+## Ads
+
+PlayFlash has three ready-made ad containers (`home-banner`, `home-bottom`, `player-below`). They are hidden and empty
+until you configure them in `games.js` under `ads`, and they never appear in full-tab mode or inside the game area.
+
+1. Set `showPlaceholders: true` to preview where slots sit. Set it back to `false` afterwards.
+2. Join an ad network, get approved, and paste the embed snippet it gives you into a slot's `html` string.
+3. Set `enabled: true`.
+
+Things to know before you do:
+- Ad networks usually need an approved account, and many reject sites hosting content the owner doesn't have rights to,
+  or a site with very little original content. Read the network's publisher policies first.
+- Ads load third-party scripts that set cookies and track visitors. If you enable them, update the privacy statements
+  on the site, and add a consent banner if your visitors are covered by laws such as the UK/EU GDPR.
+- Keep ads away from the game controls so visitors don't click them by accident.
+
 ## Privacy
 
-No analytics, cookies, accounts or third-party fonts. The only external request is loading Ruffle from the CDN
+By default there are no analytics, cookies, accounts or third-party fonts (this changes if you enable ads, see above). The only external request is loading Ruffle from the CDN
 (and any remote SWF URL you add to the catalogue). Uploaded files stay in your browser.
 
 ## Browser notes

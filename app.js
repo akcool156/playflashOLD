@@ -136,10 +136,13 @@
 
   function card(g) {
     var playable = isPlayable(g);
-    var thumb;
-    if (g.thumbnail) {
+    var thumb, thumbUrl = window.PLAYFLASH_RESOLVE.thumb(g);
+    if (thumbUrl) {
       thumb = h("div", { class: "thumb", "data-category": g.category },
-        h("img", { src: g.thumbnail, alt: "", loading: "lazy", decoding: "async", onerror: function (e) { e.target.remove(); } }));
+        h("img", { src: thumbUrl, alt: "", loading: "lazy", decoding: "async", onerror: function (e) {
+          console.warn("Thumbnail not found for " + g.id + ": " + thumbUrl + " (check the file name and folder)");
+          e.target.replaceWith(h("span", { text: initials(g.title), "aria-hidden": "true" }));
+        } }));
     } else {
       thumb = h("div", { class: "thumb", "data-category": g.category, "aria-hidden": "true" }, h("span", { text: initials(g.title) }));
     }

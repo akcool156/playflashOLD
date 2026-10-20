@@ -35,6 +35,7 @@
         <button id="restart-btn" class="btn btn-secondary btn-small" type="button" disabled>Restart</button>
         <button id="fs-btn" class="btn btn-secondary btn-small" type="button" disabled>Fullscreen</button>
         <button id="newtab-btn" class="btn btn-ghost btn-small" type="button" disabled>Open in new tab</button>
+        <a class="btn btn-ghost btn-small tab-only" href="index.html">PlayFlash home</a>
       </div>
     </div>
 
@@ -57,10 +58,13 @@
       <p>Running in <a href="https://ruffle.rs/" target="_blank" rel="noopener noreferrer">Ruffle</a>, an open-source Flash emulator. Click the game once to give it keyboard focus.</p>
       <p class="muted">Compatibility varies: some games rely on Flash features Ruffle doesn't support yet and may glitch or fail to start. Script access to the page is turned off.</p>
     </div>
+
+    <aside class="ad-slot" data-ad-slot="player-below" aria-label="Advertisement" hidden></aside>
   </main>
 
   <script src="games.js"></script>
   <script src="storage.js"></script>
   <script src="player.js"></script>
+  <script src="ads.js"></script>
 </body>
 </html>

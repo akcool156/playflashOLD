@@ -9,6 +9,8 @@
     errTitle: $("error-title"), errMsg: $("error-msg"), errActions: $("error-actions"),
     restart: $("restart-btn"), fs: $("fs-btn"), newtab: $("newtab-btn"), notice: $("notice")
   };
+  // "Full tab" mode (?tab=1): slim top bar, game fills the rest of the tab.
+  if (new URLSearchParams(window.location.search).get("tab") === "1") document.body.classList.add("tab-mode");
   var swfBytes = null, swfName = "game.swf", player = null, token = 0;
 
   function notice(msg) { els.notice.textContent = msg; }
@@ -91,7 +93,8 @@
   /* ---------- Controls ---------- */
   els.restart.addEventListener("click", function () { notice("Restarting\u2026"); startGame(); });
   els.newtab.addEventListener("click", function () {
-    var w = window.open(window.location.href, "_blank", "noopener");
+    var u = new URL(window.location.href); u.searchParams.set("tab", "1");
+    var w = window.open(u.href, "_blank", "noopener");
     if (!w) notice("Your browser blocked the new tab. Allow pop-ups for this site and try again.");
   });
   async function toggleFullscreen() {
@@ -153,7 +156,7 @@
       }
       setLoading(true, "Downloading " + g.title + "\u2026");
       try {
-        var res = await fetch(g.swfUrl);
+        var res = await fetch(window.PLAYFLASH_RESOLVE.swf(g));
         if (!res.ok) throw new Error("HTTP " + res.status);
         swfBytes = await res.arrayBuffer();
         if (!swfBytes.byteLength) throw new Error("Empty response");
