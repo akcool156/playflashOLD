@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Player | PlayFlash</title>
+  <meta name="theme-color" content="#10131A">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23B8F36B'/%3E%3Cpath d='M12 8l12 8-12 8z' fill='%2310131A'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="player-page">
+  <a class="skip-link" href="#main">Skip to the game</a>
+
+  <header class="site-header">
+    <div class="wrap bar">
+      <a class="logo" href="index.html" aria-label="PlayFlash home">
+        <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#B8F36B"/><path d="M12 8l12 8-12 8z" fill="#10131A"/></svg>
+        <span>PlayFlash</span>
+      </a>
+      <nav class="site-nav player-nav" aria-label="Main">
+        <a href="index.html#games">All games</a>
+        <a class="btn btn-secondary btn-small" href="index.html#upload">Upload another</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap player-main">
+    <div class="player-top">
+      <div>
+        <h1 id="game-title">Loading&hellip;</h1>
+        <p id="game-sub" class="muted"></p>
+      </div>
+      <div class="player-actions">
+        <button id="restart-btn" class="btn btn-secondary btn-small" type="button" disabled>Restart</button>
+        <button id="fs-btn" class="btn btn-secondary btn-small" type="button" disabled>Fullscreen</button>
+        <button id="newtab-btn" class="btn btn-ghost btn-small" type="button" disabled>Open in new tab</button>
+      </div>
+    </div>
+
+    <div id="stage-wrap" class="stage-wrap">
+      <div id="stage" class="stage"></div>
+      <div id="loading" class="overlay" role="status" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p id="loading-text">Loading player&hellip;</p>
+      </div>
+      <div id="error" class="overlay overlay-error" role="alert" hidden>
+        <h2 id="error-title">Something went wrong</h2>
+        <p id="error-msg"></p>
+        <div class="btn-row" id="error-actions"></div>
+      </div>
+    </div>
+
+    <p id="notice" class="status" role="status" aria-live="polite"></p>
+
+    <div class="player-info">
+      <p>Running in <a href="https://ruffle.rs/" target="_blank" rel="noopener noreferrer">Ruffle</a>, an open-source Flash emulator. Click the game once to give it keyboard focus.</p>
+      <p class="muted">Compatibility varies: some games rely on Flash features Ruffle doesn't support yet and may glitch or fail to start. Script access to the page is turned off.</p>
+    </div>
+  </main>
+
+  <script src="games.js"></script>
+  <script src="storage.js"></script>
+  <script src="player.js"></script>
+</body>
+</html>
