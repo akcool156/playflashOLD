@@ -65,8 +65,8 @@ window.PLAYFLASH_CATEGORIES = ["All Games", "Platformer", "Strategy", "Puzzle", 
 })();
 
 window.PLAYFLASH_GAMES = [
-  { id: "fancy-pants-adventure", title: "Fancy Pants Adventure", category: "Platformer",
-    description: "A fast, fluid side-scrolling platformer built around momentum and sliding.",
+  { id: "whack-your-boss", title: "Whack your Boss", category: "Arcade",
+    description: "Whack your boss",
     thumbnail: "", swfUrl: "", status: "coming-soon" },
   { id: "bloons-tower-defense", title: "Bloons Tower Defense", category: "Strategy",
     description: "Place towers along a track and pop waves of balloons before they escape.",
