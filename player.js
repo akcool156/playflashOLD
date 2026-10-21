@@ -1,4 +1,4 @@
-/* PlayFlash player page: loads Ruffle, then plays an upload (?upload=ID) or a catalogue game (?game=ID). */
+/* PlayFlash player page: loads Ruffle, then plays a game from the local library (?upload=ID). */
 (function () {
   "use strict";
   var cfg = window.PLAYFLASH_CONFIG, Store = window.PlayFlashStorage;
@@ -11,7 +11,7 @@
   };
   // "Full tab" mode (?tab=1): slim top bar, game fills the rest of the tab.
   if (new URLSearchParams(window.location.search).get("tab") === "1") document.body.classList.add("tab-mode");
-  var swfBytes = null, swfName = "game.swf", player = null, token = 0;
+  var swfBytes = null, swfName = "game.swf", gameId = null, counted = false, player = null, token = 0;
 
   function notice(msg) { els.notice.textContent = msg; }
   function setLoading(on, msg) { els.loading.hidden = !on; if (msg) els.loadingText.textContent = msg; }
@@ -22,7 +22,7 @@
     els.errTitle.textContent = title;
     els.errMsg.textContent = msg;
     els.errActions.replaceChildren();
-    (links || [{ href: "index.html", text: "Back to PlayFlash" }]).forEach(function (l, i) {
+    (links || [{ href: "library.html", text: "Back to my library" }]).forEach(function (l, i) {
       var a = document.createElement("a");
       a.className = "btn btn-small " + (i === 0 ? "btn-primary" : "btn-secondary");
       a.href = l.href; a.textContent = l.text;
@@ -30,7 +30,7 @@
     });
     els.error.hidden = false;
   }
-  var UPLOAD_LINKS = [{ href: "index.html#upload", text: "Back to upload" }, { href: "index.html#games", text: "Browse games" }];
+  var LIB_LINKS = [{ href: "library.html", text: "Back to my library" }, { href: "index.html#upload", text: "Add a SWF" }];
 
   function loadScript(src) {
     return new Promise(function (resolve, reject) {
@@ -52,11 +52,52 @@
     var err = new Error("Ruffle unavailable"); err.code = "ruffle-cdn"; throw err;
   }
 
+  /* ---------- Playtime ----------
+   * Counts seconds while a game is running and this tab is visible, and saves them to the library
+   * every 10 seconds and whenever the tab is hidden or closed. */
+  var running = false, playMs = 0, lastTick = Date.now();
+  function tick(wasVisible) {   // wasVisible: the tab has only just been hidden, so the time up to now still counts
+    var now = Date.now();
+    if (running && (wasVisible || document.visibilityState === "visible")) playMs += Math.min(now - lastTick, 5000);
+    lastTick = now;
+  }
+  function flushPlaytime() {
+    tick();
+    var whole = Math.floor(playMs / 1000);
+    if (whole < 1 || !gameId) return;
+    playMs -= whole * 1000;
+    Store.updateMeta(gameId, function (m) { m.playSeconds = (m.playSeconds || 0) + whole; return m; })
+      .catch(function (e) { console.warn("Couldn't save playtime:", e); });
+  }
+  setInterval(tick, 1000);
+  setInterval(flushPlaytime, 10000);
+  // When the tab is hidden or closing, park the seconds synchronously; they're merged on the next load.
+  function stashPlaytime(wasVisible) {
+    tick(wasVisible === true);
+    var whole = Math.floor(playMs / 1000);
+    if (whole < 1 || !gameId) return;
+    playMs -= whole * 1000;
+    Store.stashPending(gameId, whole);
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") stashPlaytime(true);
+    else { lastTick = Date.now(); Store.applyPending(); }
+  });
+  window.addEventListener("pagehide", function () { stashPlaytime(true); });
+
+  function countPlay() {
+    if (counted || !gameId) return;
+    counted = true;
+    Store.updateMeta(gameId, function (m) { m.plays = (m.plays || 0) + 1; m.lastPlayedAt = Date.now(); return m; })
+      .catch(function (e) { console.warn("Couldn't record play:", e); });
+  }
+
   async function startGame() {
     var mine = ++token;
     els.error.hidden = true;
+    running = false; flushPlaytime();
     setControls(false);
-    setLoading(true, "Starting " + swfName + "\u2026");
+    setLoading(true, "Starting " + els.title.textContent + "\u2026");
     if (player) { try { player.remove(); } catch (e) { /* ignore */ } player = null; }
     els.stage.replaceChildren();
     try {
@@ -79,14 +120,17 @@
       if (mine !== token) return;
       setLoading(false);
       setControls(true);
+      lastTick = Date.now(); running = true;
+      countPlay();
       notice("Game loaded. Click it once to give it keyboard focus.");
     } catch (e) {
       if (mine !== token) return;
       console.error("Ruffle failed to load the SWF:", e);
-      setControls(true); els.restart.disabled = false;
+      running = false;
+      setControls(true);
       showError("This game couldn't be started",
         "Ruffle couldn't run this file. It may be damaged, depend on other files it can't find, or use Flash features Ruffle doesn't support yet.",
-        [{ href: "index.html", text: "Back to PlayFlash" }]);
+        LIB_LINKS);
     }
   }
 
@@ -120,63 +164,36 @@
   document.addEventListener("fullscreenchange", onFsChange);
   document.addEventListener("webkitfullscreenchange", onFsChange);
 
-  /* ---------- Resolve the game source ---------- */
+  /* ---------- Find the game in the local library ---------- */
   async function resolveSource() {
-    var params = new URLSearchParams(window.location.search);
-    var uploadId = params.get("upload"), gameId = params.get("game");
-
-    if (uploadId) {
-      var rec;
-      try { rec = await Store.getUpload(uploadId); }
-      catch (e) {
-        console.error(e);
-        showError("Can't reach local storage", e.message || "This browser couldn't open its local storage.", UPLOAD_LINKS);
-        return false;
-      }
-      if (!rec) {
-        showError("That file isn't available any more",
-          "Saved uploads live only in this browser. This one was removed, or the site data was cleared. Choose the file again to keep playing.", UPLOAD_LINKS);
-        return false;
-      }
-      swfBytes = rec.data; swfName = rec.meta.name;
-      els.title.textContent = rec.meta.name;
-      els.sub.textContent = "Your upload \u00B7 " + Store.formatBytes(rec.meta.size) + " \u00B7 stored only on this device";
-      document.title = rec.meta.name + " | PlayFlash";
-      return true;
+    var id = new URLSearchParams(window.location.search).get("upload");
+    if (!id) {
+      els.title.textContent = "No game selected";
+      showError("Nothing to play yet", "Pick a game from your library, or add a .swf file to get started.", LIB_LINKS);
+      return false;
     }
-
-    if (gameId) {
-      var g = (window.PLAYFLASH_GAMES || []).filter(function (x) { return x.id === gameId; })[0];
-      if (!g) { showError("Game not found", "That game isn't in the PlayFlash library.", [{ href: "index.html#games", text: "Browse games" }]); return false; }
-      els.title.textContent = g.title; document.title = g.title + " | PlayFlash";
-      els.sub.textContent = g.category;
-      if (!(g.status === "available" && typeof g.swfUrl === "string" && g.swfUrl.trim())) {
-        showError("Coming soon", g.title + " doesn't have a playable file yet.", [{ href: "index.html#games", text: "Browse games" }]);
-        return false;
-      }
-      setLoading(true, "Downloading " + g.title + "\u2026");
-      try {
-        var res = await fetch(window.PLAYFLASH_RESOLVE.swf(g));
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        swfBytes = await res.arrayBuffer();
-        if (!swfBytes.byteLength) throw new Error("Empty response");
-      } catch (e) {
-        console.error("Catalogue fetch failed:", e);
-        showError("Couldn't download this game",
-          "The game file is missing or its host doesn't allow it to be loaded from this site. Try again later.",
-          [{ href: "index.html#games", text: "Browse games" }]);
-        return false;
-      }
-      swfName = g.title + ".swf";
-      return true;
+    var rec;
+    try { rec = await Store.getUpload(id); }
+    catch (e) {
+      console.error(e);
+      showError("Can't reach local storage", e.message || "This browser couldn't open its local storage.", LIB_LINKS);
+      return false;
     }
-
-    els.title.textContent = "No game selected";
-    showError("Nothing to play yet", "Choose a game from the library or upload a .swf file to get started.", UPLOAD_LINKS);
-    return false;
+    if (!rec) {
+      els.title.textContent = "Game not found";
+      showError("That game isn't in your library",
+        "Your library lives only in this browser. This game was removed, or the site data was cleared. Add the file again to keep playing.", LIB_LINKS);
+      return false;
+    }
+    gameId = id; swfBytes = rec.data; swfName = rec.meta.name;
+    els.title.textContent = rec.meta.title;
+    els.sub.textContent = rec.meta.name + " \u00B7 " + Store.formatBytes(rec.meta.size) + " \u00B7 stored only on this device";
+    document.title = rec.meta.title + " | PlayFlash";
+    return true;
   }
 
   (async function init() {
+    Store.applyPending();
     try {
       if (!(await resolveSource())) return;
       setLoading(true, "Loading Ruffle\u2026");
@@ -185,7 +202,7 @@
         console.error(e);
         showError("Ruffle couldn't be loaded",
           "The Flash emulator is loaded from a public CDN and couldn't be reached. Check your connection or any content blocker, then reload.",
-          [{ href: window.location.href, text: "Reload" }, { href: "index.html", text: "Back to PlayFlash" }]);
+          [{ href: window.location.href, text: "Reload" }, { href: "library.html", text: "Back to my library" }]);
         return;
       }
       await startGame();

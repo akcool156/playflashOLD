@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PlayFlash | Classic Flash games. Back in action.</title>
-  <meta name="description" content="Browse classic Flash games or upload your own .swf file and play it in your browser with Ruffle. Files stay on your device.">
+  <meta name="description" content="Add your own .swf Flash files, build a library on your device, and play them in your browser with Ruffle.">
   <meta name="theme-color" content="#10131A">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23B8F36B'/%3E%3Cpath d='M12 8l12 8-12 8z' fill='%2310131A'/%3E%3C/svg%3E">
   <script>document.documentElement.classList.add("js");</script>
@@ -21,9 +21,9 @@
       </a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
       <nav id="site-nav" class="site-nav" aria-label="Main">
-        <a href="index.html">Home</a>
-        <a href="#games">Browse games</a>
-        <a class="btn btn-primary btn-small" href="#upload">Upload SWF</a>
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="library.html">My library</a>
+        <a class="btn btn-primary btn-small" href="index.html#upload">Add a SWF</a>
       </nav>
     </div>
   </header>
@@ -32,14 +32,14 @@
     <section class="hero">
       <div class="wrap hero-grid">
         <div class="hero-copy">
-          <h1>Your favourite Flash games. Right in your browser.</h1>
-          <p class="lead">Browse a library of classic games, or drop in a .swf file of your own. PlayFlash runs them with the Ruffle emulator, with no plugin to install.</p>
+          <h1>Your Flash games. Right in your browser.</h1>
+          <p class="lead">Add your own .swf files, build a library that lives on your device, and play them any time with the Ruffle emulator. No plugin, no account.</p>
           <div class="btn-row">
-            <a class="btn btn-primary" href="#games">Explore games</a>
-            <a class="btn btn-secondary" href="#upload">Upload a SWF</a>
+            <a class="btn btn-primary" href="#upload">Add a game</a>
+            <a class="btn btn-secondary" href="library.html">Open my library</a>
           </div>
           <p class="reassure"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Uploaded files are processed locally in your browser and never sent to a server.</p>
+            Your games are stored and run locally in your browser.</p>
         </div>
 
         <div class="arcade" aria-hidden="true">
@@ -61,67 +61,49 @@
     <section id="upload" class="section" aria-labelledby="upload-title">
       <div class="wrap">
         <div class="section-head">
-          <h2 id="upload-title">Play your own SWF</h2>
-          <p>Pick a Flash file from your computer and it opens straight in the player.</p>
+          <h2 id="upload-title">Add games to your library</h2>
+          <p>Choose one or more Flash files from your computer. A single file opens straight away; several are added to your library.</p>
         </div>
 
         <div class="upload-card">
-          <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-describedby="upload-help" aria-label="Drop a SWF file here, or press Enter to choose one">
+          <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-describedby="upload-help" aria-label="Drop SWF files here, or press Enter to choose files">
             <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path d="M12 16V4m0 0l-4.5 4.5M12 4l4.5 4.5M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <p class="dz-title">Drag a .swf file here</p>
+            <p class="dz-title">Drag .swf files here</p>
             <p class="dz-sub">or</p>
-            <button id="choose-btn" class="btn btn-primary" type="button">Choose file</button>
+            <button id="choose-btn" class="btn btn-primary" type="button">Choose files</button>
             <p id="selected-file" class="selected-file" hidden></p>
-            <input id="swf-input" type="file" accept=".swf,application/x-shockwave-flash" hidden>
+            <input id="swf-input" type="file" accept=".swf,application/x-shockwave-flash" multiple hidden>
           </div>
 
           <p id="upload-status" class="status" role="status" aria-live="polite"></p>
           <p id="upload-error" class="alert alert-error" role="alert" hidden></p>
 
           <ul id="upload-help" class="notes">
-            <li>One file at a time, up to <span id="max-size">50</span> MB.</li>
-            <li>Your file is saved in this browser's local storage (IndexedDB) so the player page and new tabs can open it. It is not uploaded anywhere. Clearing your site data removes it, and you may then need to choose the file again.</li>
-            <li>A .swf extension doesn't prove a file is safe or valid. Only open files from sources you trust.</li>
+            <li>Up to <span id="max-size">50</span> MB per file. Each game is named after its file (without .swf), and you can rename it later.</li>
+            <li>Games are saved in this browser's local storage (IndexedDB). Clearing your site data, or using private browsing, can remove them.</li>
             <li>Not every game works in Ruffle. Compatibility depends on the Flash features a game uses.</li>
           </ul>
 
-          <div id="recent" class="recent" hidden>
-            <div class="recent-head">
-              <h3>Saved on this device</h3>
-              <button id="clear-btn" class="btn btn-ghost btn-small" type="button">Clear all saved files</button>
-            </div>
-            <ul id="recent-list" class="recent-list"></ul>
-          </div>
+          <p class="disclaimer">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            <span>Only add SWF files from sources you trust. Files from unknown sites can contain malware, so consider scanning downloads with antivirus software first. Ruffle runs games inside your browser, which helps, but it can't guarantee a file is safe.</span>
+          </p>
         </div>
       </div>
     </section>
 
-    <section id="games" class="section" aria-labelledby="games-title">
+    <section class="section" aria-labelledby="ll-title">
       <div class="wrap">
-        <div class="section-head">
-          <h2 id="games-title">Find your next favourite</h2>
-          <p>Every title below is a placeholder until a legally sourced, tested file is added to the library.</p>
-        </div>
-
-        <div class="toolbar">
-          <div class="search">
-            <label for="search">Search games</label>
-            <input id="search" type="search" placeholder="Title, category or description" autocomplete="off">
+        <div class="lib-link-card">
+          <div>
+            <h2 id="ll-title">My library</h2>
+            <p id="ll-text" class="muted">Your saved games live here, on this device.</p>
           </div>
-          <div id="filters" class="filters" role="group" aria-label="Filter by category"></div>
+          <a class="btn btn-secondary" href="library.html">Open my library</a>
         </div>
-
-        <p id="result-count" class="status" role="status" aria-live="polite"></p>
-        <div id="grid" class="grid"></div>
-
-        <div id="empty" class="empty" hidden>
-          <h3>No games match that search</h3>
-          <p>Try a different word, or show every category again.</p>
-          <button id="reset-btn" class="btn btn-secondary" type="button">Clear search and filters</button>
-        </div>
-        <noscript><p class="alert alert-error">The game library and uploader need JavaScript. Please turn it on and reload.</p></noscript>
       </div>
     </section>
+
     <aside class="wrap ad-slot" data-ad-slot="home-bottom" aria-label="Advertisement" hidden></aside>
   </main>
 
@@ -133,16 +115,17 @@
       </div>
       <div>
         <p><a href="https://ruffle.rs/" target="_blank" rel="noopener noreferrer">Powered by Ruffle (ruffle.rs)</a></p>
-        <p class="muted">Ruffle emulates Flash but doesn't support every game. Some titles run with glitches or not at all.</p>
+        <p class="muted">Ruffle doesn&rsquo;t support every Flash game, so some titles may not run properly.</p>
       </div>
       <div>
-        <p class="muted">&copy; 2026 PlayFlash. Not affiliated with Adobe, Ruffle or any game developer. Game names belong to their owners and appear here only as placeholders. Ruffle is open source (MIT or Apache-2.0) and loaded from a public CDN.</p>
+        <p class="muted">&copy; 2026 PlayFlash. Not affiliated with Adobe, Ruffle or any game developer.</p>
       </div>
     </div>
   </footer>
 
-  <script src="games.js"></script>
+  <script src="config.js"></script>
   <script src="storage.js"></script>
+  <script src="common.js"></script>
   <script src="app.js"></script>
   <script src="ads.js"></script>
 </body>

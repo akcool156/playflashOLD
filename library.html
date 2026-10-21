@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My library | PlayFlash</title>
+  <meta name="description" content="Your saved Flash games, stored on this device.">
+  <meta name="theme-color" content="#10131A">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23B8F36B'/%3E%3Cpath d='M12 8l12 8-12 8z' fill='%2310131A'/%3E%3C/svg%3E">
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap bar">
+      <a class="logo" href="index.html" aria-label="PlayFlash home">
+        <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#B8F36B"/><path d="M12 8l12 8-12 8z" fill="#10131A"/></svg>
+        <span>PlayFlash</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav id="site-nav" class="site-nav" aria-label="Main">
+        <a href="index.html">Home</a>
+        <a href="library.html" aria-current="page">My library</a>
+        <a class="btn btn-primary btn-small" href="index.html#upload">Add a SWF</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section">
+      <div class="wrap">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">My library</h1>
+            <p id="lib-summary" class="muted">Loading your library&hellip;</p>
+          </div>
+          <a class="btn btn-primary" href="index.html#upload">Add a game</a>
+        </div>
+
+        <div id="lib-tools" class="toolbar" hidden>
+          <div class="field">
+            <label for="search">Search your games</label>
+            <input id="search" type="search" placeholder="Search by name" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="sort">Sort by</label>
+            <select id="sort">
+              <option value="added">Recently added</option>
+              <option value="played">Recently played</option>
+              <option value="name">Name (A to Z)</option>
+              <option value="plays">Most played</option>
+              <option value="time">Most playtime</option>
+            </select>
+          </div>
+          <div id="filters" class="filters" role="group" aria-label="Show">
+            <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
+            <button class="chip" type="button" data-filter="favorites" aria-pressed="false">Favourites</button>
+          </div>
+        </div>
+
+        <p id="lib-status" class="status" role="status" aria-live="polite"></p>
+        <p id="lib-error" class="alert alert-error" role="alert" hidden></p>
+        <ul id="grid" class="grid"></ul>
+        <div id="empty" class="empty" hidden></div>
+
+        <div id="lib-foot" class="lib-foot" hidden>
+          <p id="storage-note" class="muted small"></p>
+          <button id="clear-btn" class="btn btn-ghost btn-small" type="button">Remove all games</button>
+        </div>
+        <noscript><p class="alert alert-error">The library and player need JavaScript. Please turn it on and reload.</p></noscript>
+      </div>
+    </section>
+
+    <aside class="wrap ad-slot" data-ad-slot="library-bottom" aria-label="Advertisement" hidden></aside>
+  </main>
+
+  <dialog id="edit-dialog" class="dialog" aria-labelledby="edit-title">
+    <form id="edit-form">
+      <h2 id="edit-title">Edit game</h2>
+      <div class="field">
+        <label for="edit-name">Game name</label>
+        <input id="edit-name" type="text" maxlength="80" autocomplete="off">
+        <p class="muted small" id="edit-file"></p>
+      </div>
+      <div class="field">
+        <span class="label">Cover image</span>
+        <div class="cover-row">
+          <div id="edit-cover" class="cover-preview" aria-hidden="true"></div>
+          <div class="cover-actions">
+            <button id="cover-choose" class="btn btn-secondary btn-small" type="button">Choose image</button>
+            <button id="cover-remove" class="btn btn-ghost btn-small" type="button">Remove cover</button>
+          </div>
+        </div>
+        <input id="cover-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+        <p class="muted small">Optional. The image stays on your device.</p>
+      </div>
+      <p id="edit-error" class="alert alert-error" role="alert" hidden></p>
+      <div class="btn-row dialog-actions">
+        <button id="edit-cancel" class="btn btn-ghost" type="button">Cancel</button>
+        <button class="btn btn-primary" type="submit">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <p class="footer-brand">PlayFlash</p>
+        <p class="muted">Classic Flash games. Back in action.</p>
+      </div>
+      <div>
+        <p><a href="https://ruffle.rs/" target="_blank" rel="noopener noreferrer">Powered by Ruffle (ruffle.rs)</a></p>
+        <p class="muted">Ruffle doesn&rsquo;t support every Flash game, so some titles may not run properly.</p>
+      </div>
+      <div>
+        <p class="muted">&copy; 2026 PlayFlash. Not affiliated with Adobe, Ruffle or any game developer.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="storage.js"></script>
+  <script src="common.js"></script>
+  <script src="library.js"></script>
+  <script src="ads.js"></script>
+</body>
+</html>
